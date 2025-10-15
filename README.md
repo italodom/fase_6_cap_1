@@ -30,16 +30,16 @@ O dataset utilizado contém **82 imagens** divididas em **2 classes**:
 ```
 dataset/
 ├── cat/
-│   ├── train/          # 32 imagens de treino
+│   ├── train/          # 33 imagens de treino
 │   ├── validation/     # 4 imagens de validação
 │   └── test/           # 4 imagens de teste
 └── dog/
-    ├── train/          # 32 imagens de treino
+    ├── train/          # 33 imagens de treino
     ├── validation/     # 4 imagens de validação
     └── test/           # 4 imagens de teste
 
 labels/
-└── *.txt              # 41 arquivos de anotações em formato YOLO
+└── *.txt              # 41 arquivos de anotações em formato YOLO (para 82 imagens)
 ```
 
 ### Formato das Anotações
@@ -61,6 +61,12 @@ Todos os valores são normalizados entre 0 e 1.
 - **Matplotlib/Seaborn**: Visualização de dados
 - **Pandas/NumPy**: Manipulação de dados
 
+## 🎥 Vídeo Demonstrativo
+
+📹 **[Link do vídeo no YouTube]** _(não listado)_
+
+> Vídeo de demonstração (até 5 minutos) mostrando o funcionamento completo do projeto.
+
 ## 📁 Estrutura do Projeto
 
 ```
@@ -68,9 +74,18 @@ fase_6_cap_1/
 ├── dataset/                    # Dataset original (cat/dog)
 │   ├── cat/
 │   └── dog/
-├── labels/                     # Anotações YOLO existentes
+├── labels/                     # Anotações YOLO existentes (41 arquivos)
 │   └── *.txt
+├── yolo_dataset/               # Dataset convertido para formato YOLO (gerado)
+│   ├── images/
+│   ├── labels/
+│   └── data.yaml
+├── runs/                       # Resultados de treinamento (gerado)
+│   └── detect/
+│       ├── train_30epochs/
+│       └── train_60epochs/
 ├── ItaloDomingues_RM561787_pbl_fase6.ipynb    # Notebook principal do projeto
+├── ItaloDomingues_RM561787_fase6_cap1.txt     # Informações do aluno
 ├── enunciado.md                # Descrição completa do desafio
 └── README.md                   # Este arquivo
 ```
@@ -79,11 +94,19 @@ fase_6_cap_1/
 
 ### Pré-requisitos
 
+**Opção A - Google Colab:**
 1. Conta Google (para acesso ao Google Colab)
 2. Dataset e labels organizados no Google Drive
 3. Conexão com internet para download dos modelos YOLO
 
+**Opção B - Jupyter Local:**
+1. Python 3.8+
+2. Dataset e labels na pasta do projeto
+3. Conexão com internet para download dos modelos YOLO
+
 ### Passo a Passo
+
+#### Para Google Colab:
 
 1. **Prepare o Google Drive**
    - Faça upload das pastas `dataset/` e `labels/` para o Google Drive
@@ -93,12 +116,33 @@ fase_6_cap_1/
    - Faça upload do arquivo `ItaloDomingues_RM561787_pbl_fase6.ipynb` para o Google Colab
    - Ou abra diretamente pelo Google Drive
 
-3. **Configure os Caminhos**
-   - Na célula de configuração (Seção 3), ajuste os caminhos:
+3. **Configure os Caminhos** (se necessário)
+   - O notebook detecta automaticamente o ambiente
+   - Se precisar ajustar, altere na Seção 3:
    ```python
    DATASET_SOURCE = '/content/drive/MyDrive/dataset'  # ⬅️ AJUSTE AQUI!
    LABELS_SOURCE = '/content/drive/MyDrive/labels'    # ⬅️ AJUSTE AQUI!
    ```
+
+#### Para Jupyter Local:
+
+1. **Clone o Repositório**
+   ```bash
+   git clone https://github.com/italodom/fase_6_cap_1.git
+   cd fase_6_cap_1
+   ```
+
+2. **Instale as Dependências**
+   ```bash
+   pip install ultralytics pyyaml matplotlib pillow pandas
+   ```
+
+3. **Execute o Notebook**
+   - Abra o notebook no Jupyter Lab/Notebook ou VSCode
+   - O notebook detecta automaticamente que está rodando localmente
+   - Os caminhos são ajustados automaticamente para `./dataset/` e `./labels/`
+
+### Execução
 
 4. **Execute o Notebook**
    - Execute as células sequencialmente (Runtime > Run all)
@@ -137,8 +181,8 @@ Dois modelos são treinados a partir do YOLOv8n pré-treinado:
 **Parâmetros de Treinamento**:
 - Modelo base: `yolov8n.pt` (nano)
 - Tamanho da imagem: 640x640
-- Batch size: 16
-- Otimizador: Adam
+- Batch size: 8
+- Otimizador: AdamW (determinado automaticamente)
 - Paciência (early stopping): 50 épocas
 
 ### 3. Validação
@@ -162,7 +206,29 @@ Comparação entre os dois modelos considerando:
 - Qualidade das predições
 - Trade-off entre acurácia e tempo de treinamento
 
-## 📈 Resultados Esperados
+## 📈 Resultados Obtidos
+
+### Comparação dos Modelos
+
+| Métrica | 30 Épocas | 60 Épocas | Melhoria |
+|---------|-----------|-----------|----------|
+| **Tempo de Treinamento** | 8.50 min | 16.30 min | 1.9x |
+| **mAP50** | 0.6102 | 0.7848 | +28.6% |
+| **mAP50-95** | 0.2943 | 0.4770 | +62.1% |
+| **Precision** | 0.0059 | 0.6862 | **+116x** |
+| **Recall** | 1.0000 | 0.8750 | -12.5% |
+
+### Principais Conclusões
+
+✅ **Modelo de 60 épocas:**
+- Performance muito superior (precision 116x melhor)
+- Conseguiu detectar objetos nos testes
+- Essencial para uso em produção
+
+❌ **Modelo de 30 épocas:**
+- Underfitting severo (precision de apenas 0.59%)
+- Não detectou nenhum objeto nas imagens de teste
+- Não utilizável em aplicações reais
 
 ### Métricas de Avaliação
 
@@ -176,21 +242,21 @@ Comparação entre os dois modelos considerando:
 1. **Curvas de Treinamento**: Loss, Precision, Recall ao longo das épocas
 2. **Matriz de Confusão**: Classificação entre as classes
 3. **Predições com Bounding Boxes**: Visualização das detecções
-4. **Comparação 30 vs 60 épocas**: Análise de performance
+4. **Comparação 30 vs 60 épocas**: Análise detalhada de performance
 
 ## 📓 Estrutura do Notebook
 
 O notebook `ItaloDomingues_RM561787_pbl_fase6.ipynb` está organizado em 7 seções principais:
 
-1. **Introdução**: Contexto do projeto e objetivos
-2. **Instalação e Importações**: Setup do ambiente
-3. **Conexão com Google Drive**: Acesso aos dados
-4. **Preparação do Dataset**: Conversão para formato YOLO
-5. **Treinamento**: Modelos com 30 e 60 épocas
-6. **Validação**: Avaliação dos modelos
-7. **Testes e Análise**: Comparação e conclusões
+1. **Instalação e Imports**: Setup do ambiente e bibliotecas
+2. **Configuração de Caminhos**: Detecção automática de ambiente (Colab/Local)
+3. **Preparação do Dataset**: Conversão para formato YOLO
+4. **Treinamento**: Modelos com 30 e 60 épocas
+5. **Validação**: Avaliação dos modelos treinados
+6. **Teste**: Inferência nas imagens de teste
+7. **Análise Comparativa**: Conclusões e recomendações
 
-Total: **26 células** (código + markdown)
+**Total**: 26 células (código + markdown) totalmente executadas com resultados
 ---
 
 **FarmTech Solutions** - Tecnologia a serviço do agronegócio 🌾
