@@ -60,13 +60,7 @@ Todos os valores são normalizados entre 0 e 1.
 - **OpenCV**: Processamento de imagens
 - **Matplotlib/Seaborn**: Visualização de dados
 - **Pandas/NumPy**: Manipulação de dados
-
-## 🎥 Vídeo Demonstrativo
-
-📹 **[Link do vídeo no YouTube]** _(não listado)_
-
-> Vídeo de demonstração (até 5 minutos) mostrando o funcionamento completo do projeto.
-
+- 
 ## 📁 Estrutura do Projeto
 
 ```
