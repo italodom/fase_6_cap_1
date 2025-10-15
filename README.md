@@ -14,7 +14,6 @@ O sistema implementa detecção de objetos utilizando **YOLOv8 (You Only Look On
 ### 🎯 Objetivos
 
 - **Entrega 1**: Treinar um modelo YOLO customizado e comparar resultados com 30 e 60 épocas de treinamento
-- **Entrega 2**: Comparar três abordagens: YOLO customizado, YOLO padrão e CNN do zero
 - Documentar todo o processo com visualizações e análises comparativas
 - Criar um repositório completo no GitHub com documentação técnica
 
